@@ -3,6 +3,7 @@ import { FaArrowRight, FaBell, FaBolt, FaChartBar } from "react-icons/fa";
 import Footer from "./components/footer";
 import { CiBoxes, CiCircleCheck } from "react-icons/ci";
 import { FaPlug, FaShield } from "react-icons/fa6";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -19,19 +20,19 @@ export default function Home() {
             system.
           </p>
           <div className="mt-4 space-x-2">
-            <a
+            <Link
               href="#"
               className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-md inline-flex items-center"
             >
               Start Free Trial
               <FaArrowRight className="inline-block ml-1" />
-            </a>
-            <a
+            </Link>
+            <Link
               href="/"
               className="bg-white hover:bg-gray-400 text-indigo-500 hover:text-indigo-600 border-indigo-500 hover:border-indigo-600 px-4 py-2 rounded-md border-2  inline-flex items-center"
             >
               Watch Demo
-            </a>
+            </Link>
           </div>
         </div>
         <section id="features" className="py-20 lg:py-32">
@@ -114,7 +115,7 @@ export default function Home() {
           className="py-20 lg:py-32 bg-gray-50 dark:bg-gray-800"
         >
           <div className="container mx-auto px-6">
-            <div className="grid lg:grid-cols-2 items-center">
+            <div className="grid lg:grid-cols-2 items-center gap-4">
               <div>
                 <h2 className="text-4xl lg:text-5xl font-bold mb-6">
                   Transform How You Manage Inventory
@@ -176,7 +177,7 @@ export default function Home() {
                     </div>
                     <div className="bg-white dark:bg-gray-700 rounded-xl p-6 shadow-lg mb-4">
                       <span className="text-sm block mb-2">
-                        Today's Activity
+                        Today&apos;s Activity
                       </span>
                       <div className="flex gap-4">
                         <div>
@@ -204,12 +205,18 @@ export default function Home() {
               Start your free 14-day trial today. No credit card required.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-4 bg-white text-indigo-600 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
+              <Link
+                href="/trial"
+                className="px-8 py-4 bg-white text-indigo-600 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+              >
                 Start Free Trial <FaArrowRight />
-              </button>
-              <button className="px-8 py-4 bg-transparent text-white rounded-lg border-2 border-white hover:bg-white hover:text-indigo-600 transition-colors">
+              </Link>
+              <Link
+                href="/demo"
+                className="px-8 py-4 bg-transparent text-white rounded-lg border-2 border-white hover:bg-white hover:text-indigo-600 transition-colors"
+              >
                 Schedule a Demo
-              </button>
+              </Link>
             </div>
             <p className="text-indigo-200 mt-6">
               Join 5,000+ businesses already using InventoryPro
