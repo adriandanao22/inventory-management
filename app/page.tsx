@@ -1,6 +1,6 @@
-import Navbar from "@/app/components/navbar";
+import Navbar from "@/src/components/navbar";
 import { FaArrowRight, FaBell, FaBolt, FaChartBar } from "react-icons/fa";
-import Footer from "./components/footer";
+import Footer from "@/src/components/footer";
 import { CiBoxes, CiCircleCheck } from "react-icons/ci";
 import { FaPlug, FaShield } from "react-icons/fa6";
 import Link from "next/link";
