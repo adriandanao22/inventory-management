@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const { token, email, username, password, confirmPassword } = await req.json();
+  const { token } = await req.json();
 
   const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
     method: "POST",
