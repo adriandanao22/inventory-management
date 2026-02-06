@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
     const token = req.cookies.get('token')?.value;
 
     if (!token) {
@@ -13,7 +13,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
     matcher: [
-        '/dashboard/:path*',
-        '/inventory/:path*'
+        '/dashboard',
     ]
 }
