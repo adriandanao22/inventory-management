@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: `secret=${process.env.NEXT_PUBLIC_RECAPTCHA_SECRET_KEY}&response=${token}`,
+    body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`,
   });
 
   const data = await res.json();
