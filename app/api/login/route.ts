@@ -4,7 +4,7 @@ import { signToken } from "@/src/lib/auth";
 import { createClient } from "@/src/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient()
+  const supabase = await createClient();
 
   const request = await req.json();
   const { username, password } = request.d;
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   const { data: user, error } = await supabase.from("users").select("id, email, username, password").eq("username", username).single();
 
   if (error || !user) {
-    return NextResponse.json({ c: 401, m: "Invalid username or password", d: null });
+    return NextResponse.json({ c: 401, m: "Invalid username or password", d: { e: error } });
   }
 
   const passwordMatch = await bcrypt.compare(password, user.password);

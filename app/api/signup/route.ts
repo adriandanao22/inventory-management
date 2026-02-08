@@ -5,7 +5,7 @@ import { createClient } from "@/src/lib/supabase/server";
 
 export async function POST(req: Request) {
   const { token, email, username, password, confirmPassword } = await req.json();
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const captchaRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
     method: "POST",
