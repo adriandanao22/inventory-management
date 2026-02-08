@@ -6,7 +6,7 @@ const mockEq = jest.fn(() => ({ single: mockSingle }));
 const mockSelect = jest.fn(() => ({ eq: mockEq }));
 const mockFrom = jest.fn(() => ({ select: mockSelect }));
 
-jest.mock("@/lib/supabase/server", () => ({
+jest.mock("@/src/lib/supabase/server", () => ({
   createClient: () => ({ from: mockFrom }),
 }));
 
@@ -14,7 +14,7 @@ jest.mock("bcryptjs", () => ({
   compare: jest.fn(),
 }));
 
-jest.mock("@/lib/auth", () => ({
+jest.mock("@/src/lib/auth", () => ({
   signToken: jest.fn(() => "mocked-jwt-token"),
 }));
 

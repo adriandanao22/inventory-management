@@ -8,9 +8,10 @@ const createJestConfig = nextJest({
 const config: Config = {
   displayName: "inventory-management",
   testEnvironment: "jsdom",
+  setupFiles: ["<rootDir>/jest.env.ts"],
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   moduleNameMapper: {
-    "^@/(.*)$": "<rootDir>/src/$1"
+    "^@/(.*)$": "<rootDir>/$1"
   },
   testMatch: ["**/__tests__/**/*.(test|spec).(ts|tsx)"]
 };
