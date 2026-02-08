@@ -21,7 +21,7 @@ jest.mock("@/lib/auth", () => ({
 import bcrypt from "bcryptjs";
 import { NextRequest } from "next/server";
 
-function makeRequest(body: any) {
+function makeRequest(body: Record<string, unknown>) {
   return new NextRequest("http://localhost/api/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
