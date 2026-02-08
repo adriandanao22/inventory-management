@@ -1,14 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/src/lib/auth";
 import { createClient } from "@/src/lib/supabase/server";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const supabase = createClient()
 
   const request = await req.json();
   const { username, password } = request.d;
-  console.log("Login attempt:", { username });
 
   if (!username || !password) {
     return NextResponse.json({ c: 400, m: "Username and password are required", d: null });
