@@ -151,13 +151,15 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="relative">
+              <div className="relative w-full">
                 <div className="aspect-square rounded-2xl shadow-2xl overflow-hidden bg-white dark:bg-gray-700">
-                  <div className="absolute inset-0 bg-opacity-10 backdrop-blur-sm p-8">
-                    <div className="bg-white dark:bg-gray-700 rounded-xl p-6 shadow-lg mb-4">
+                  <div className="absolute inset-0 bg-opacity-10 backdrop-blur-sm p-4 sm:p-8 overflow-y-auto">
+                    <div className="bg-white dark:bg-gray-700 rounded-xl p-4 sm:p-6 shadow-lg mb-4">
                       <div className="flex items-center justify-between mb-4">
-                        <span className="text-sm">Total Items</span>
-                        <span className="text-2xl font-bold">12,847</span>
+                        <span className="text-xs sm:text-sm">Total Items</span>
+                        <span className="text-xl sm:text-2xl font-bold">
+                          12,847
+                        </span>
                       </div>
                       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div
@@ -166,26 +168,32 @@ export default function Home() {
                         ></div>
                       </div>
                     </div>
-                    <div className="bg-white dark:bg-gray-700 rounded-xl p-6 shadow-lg mb-4">
+                    <div className="bg-white dark:bg-gray-700 rounded-xl p-4 sm:p-6 shadow-lg mb-4">
                       <div className="flex items-center justify-between mb-4">
-                        <span className="text-sm">Low Stock Alert</span>
+                        <span className="text-xs sm:text-sm">
+                          Low Stock Alert
+                        </span>
                         <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">
                           3 items
                         </span>
                       </div>
-                      <p className="text-sm">Reorder recommended</p>
+                      <p className="text-xs sm:text-sm">Reorder recommended</p>
                     </div>
-                    <div className="bg-white dark:bg-gray-700 rounded-xl p-6 shadow-lg mb-4">
-                      <span className="text-sm block mb-2">
+                    <div className="bg-white dark:bg-gray-700 rounded-xl p-4 sm:p-6 shadow-lg mb-4">
+                      <span className="text-xs sm:text-sm block mb-2">
                         Today&apos;s Activity
                       </span>
                       <div className="flex gap-4">
                         <div>
-                          <div className="text-xl font-bold">+284</div>
+                          <div className="text-lg sm:text-xl font-bold">
+                            +284
+                          </div>
                           <div className="text-xs">New Orders</div>
                         </div>
                         <div>
-                          <div className="text-xl font-bold">-156</div>
+                          <div className="text-lg sm:text-xl font-bold">
+                            -156
+                          </div>
                           <div className="text-xs">Items Out</div>
                         </div>
                       </div>
