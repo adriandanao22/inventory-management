@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/src/lib/auth";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/src/lib/supabase/server";
 
 export async function POST(req: Request) {
-  const supabase = createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const supabase = createClient()
 
   const request = await req.json();
   const { username, password } = request.d;

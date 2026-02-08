@@ -1,15 +1,11 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/src/lib/auth";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { createClient } from "@/src/lib/supabase/server";
 
 export async function POST(req: Request) {
   const { token, email, username, password, confirmPassword } = await req.json();
+  const supabase = createClient();
 
   const captchaRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
     method: "POST",
