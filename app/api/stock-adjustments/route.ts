@@ -52,12 +52,12 @@ export async function POST(req: NextRequest) {
   try {
     const token = req.cookies.get("auth-token")?.value;
     if (!token) {
-      return NextResponse.json({ c: 401, m: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ c: 401, m: "Unauthorized", d: null }, { status: 401 });
     }
 
     const payload = verifyToken(token);
     if (!payload) {
-      return NextResponse.json({ c: 401, m: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ c: 401, m: "Unauthorized", d: null }, { status: 401 });
     }
 
     const userId = payload.userId;
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
 
     if (productError || !product) {
       return NextResponse.json(
-        { c: 404, m: "Product not found" },
+        { c: 404, m: "Product not found", d: null },
         { status: 404 }
       );
     }
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
 
     if (newStock < 0) {
       return NextResponse.json(
-        { c: 400, m: "Insufficient stock" },
+        { c: 400, m: "Insufficient stock", d: null },
         { status: 400 }
       );
     }
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
 
     if (updateError) {
       return NextResponse.json(
-        { c: 500, m: "Failed to update product stock" },
+        { c: 500, m: "Failed to update product stock", d: null },
         { status: 500 }
       );
     }
@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
 
     if (adjError) {
       return NextResponse.json(
-        { c: 500, m: "Failed to create stock adjustment" },
+        { c: 500, m: "Failed to create stock adjustment", d: null },
         { status: 500 }
       );
     }
@@ -174,7 +174,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Error creating stock adjustment:", error);
     return NextResponse.json(
-      { c: 500, m: "Internal server error" },
+      { c: 500, m: "Internal server error", d: null },
       { status: 500 }
     );
   }
