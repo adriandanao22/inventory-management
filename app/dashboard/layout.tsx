@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useAuth } from "@/src/context/authContext";
 import { ReactNode } from "react";
 import { FaArrowTrendUp } from "react-icons/fa6";
+import { IoSettingsOutline } from "react-icons/io5";
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard", icon: <MdOutlineDashboard /> },
@@ -22,6 +23,11 @@ const navLinks = [
     label: "Stock Adjustments",
     icon: <FaArrowTrendUp />,
   },
+  {
+    href: "/dashboard/settings",
+    label: "Settings",
+    icon: <IoSettingsOutline />,
+  },
 ];
 
 const userMenuItems = [
@@ -34,20 +40,23 @@ function NavLink({
   label,
   icon,
   active,
+  onClick,
 }: {
   href: string;
   label: string;
   icon: ReactNode;
   active: boolean;
+  onClick?: () => void;
 }) {
   return (
     <li>
       <Link
         href={href}
+        onClick={onClick}
         className={`flex items-center gap-2 rounded px-2 py-1 transition-colors ${
           active
-            ? "bg-indigo-200 dark:bg-indigo-700"
-            : "hover:bg-indigo-100 dark:hover:bg-indigo-500"
+            ? "bg-indigo-100 dark:bg-indigo-600 text-indigo-700 dark:text-white"
+            : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
         }`}
       >
         {icon}
@@ -82,6 +91,11 @@ export default function DashboardLayout({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const isActive = (href: string) => {
+    if (href === "/dashboard") return pathname === "/dashboard";
+    return pathname.startsWith(href);
+  };
+
   const handleMenuAction = async (action: string) => {
     setUserMenuOpen(false);
     if (action === "logout") await logout();
@@ -89,15 +103,18 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 lg:grid lg:grid-cols-[16rem_1fr]">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-800 lg:grid lg:grid-cols-[16rem_1fr]">
       {/* Sidebar */}
       <aside
-        className={`bg-white dark:bg-gray-800 fixed lg:static inset-y-0 left-0 w-64 transform transition-transform ${
+        className={`bg-white dark:bg-gray-900 fixed lg:static inset-y-0 left-0 w-64 transform transition-transform border-r border-gray-200 dark:border-gray-700 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 z-50`}
       >
         <div className="flex gap-2 justify-center items-center h-20 border-b border-gray-200 dark:border-gray-700">
-          <Link href="/" className="flex items-center gap-2">
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-semibold text-gray-800 dark:text-white"
+          >
             <FiPackage className="text-2xl text-indigo-500" />
             InventoryPro
           </Link>
@@ -108,7 +125,8 @@ export default function DashboardLayout({
               <NavLink
                 key={link.href}
                 {...link}
-                active={pathname === link.href}
+                active={isActive(link.href)}
+                onClick={() => setSidebarOpen(false)}
               />
             ))}
           </ul>
@@ -118,7 +136,7 @@ export default function DashboardLayout({
       {/* Main Content */}
       <main className="relative min-h-screen flex flex-col">
         {/* Top Bar */}
-        <header className="flex items-center justify-between lg:justify-end h-20 border-b border-gray-200 dark:border-gray-700 px-6 bg-white dark:bg-white/5">
+        <header className="flex items-center justify-between lg:justify-end h-20 border-b border-gray-200 dark:border-gray-700 px-6 bg-white dark:bg-gray-900">
           <button
             onClick={() => setSidebarOpen((prev) => !prev)}
             className="lg:hidden p-4"
@@ -130,6 +148,7 @@ export default function DashboardLayout({
             <button
               onClick={() => setUserMenuOpen((prev) => !prev)}
               aria-label="User menu"
+              className="border-2 border-gray-200 dark:border-gray-700 rounded-full"
             >
               <Image
                 src="/unknown-user.jpg"
@@ -158,7 +177,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Page Content */}
-        <div className="p-6 bg-gray-300 dark:bg-gray-700 flex-1">
+        <div className="p-6 bg-gray-100 dark:bg-gray-800 flex-1">
           {children}
         </div>
       </main>
