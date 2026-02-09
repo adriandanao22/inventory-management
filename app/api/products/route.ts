@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await query;
 
   if (error) {
-    return NextResponse.json({ c: 500, m: "Error fetching products", d: null });
+    return NextResponse.json({ c: 500, m: "Error fetching products", d: error.message });
   }
 
   return NextResponse.json({ c: 200, m: "Success", d: data });
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error) {
-    return NextResponse.json({ c: 500, m: "Error creating product", d: null });
+    return NextResponse.json({ c: 500, m: "Error creating product", d: error.message });
   }
 
   return NextResponse.json({ c: 201, m: "Product created", d: data });

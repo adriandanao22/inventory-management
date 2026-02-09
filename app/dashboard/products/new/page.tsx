@@ -64,6 +64,7 @@ export default function NewProductPage() {
       if (json.c === 201) {
         router.push("/dashboard/products");
       } else {
+        console.log("Error creating product:", json.m);
         alert(json.m || "Failed to create product");
       }
     } catch (error) {
