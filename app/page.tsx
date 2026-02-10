@@ -10,46 +10,46 @@ export default function Home() {
     <div className="min-h-screen min-w-full dark:bg-gray-700">
       <Navbar />
       <main className="flex flex-col min-h-screen w-full">
-        <div className="p-10 bg-[#e3eaff] dark:text-white dark:bg-gray-800">
-          <h1 className="text-4xl font-bold max-w-md">
+        <div className="p-6 sm:p-10 bg-[#e3eaff] dark:text-white dark:bg-gray-800">
+          <h1 className="text-3xl sm:text-4xl font-bold max-w-md">
             Manage Your Inventory with Confidence
           </h1>
-          <p className="text-gray-700 dark:text-gray-300 max-w-2xl">
+          <p className="text-gray-700 dark:text-gray-300 max-w-2xl mt-2 text-base sm:text-lg">
             Streamline your stock management, track products in real-time, and
             make data-driven decisions with our powerful inventory management
             system.
           </p>
-          <div className="mt-4 space-x-2">
+          <div className="mt-4 flex flex-col sm:flex-row gap-2">
             <Link
               href="#"
-              className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-md inline-flex items-center"
+              className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-md inline-flex items-center justify-center"
             >
               Start Free Trial
               <FaArrowRight className="inline-block ml-1" />
             </Link>
             <Link
               href="/"
-              className="bg-white hover:bg-gray-400 text-indigo-500 hover:text-indigo-600 border-indigo-500 hover:border-indigo-600 px-4 py-2 rounded-md border-2  inline-flex items-center"
+              className="bg-white hover:bg-gray-400 text-indigo-500 hover:text-indigo-600 border-indigo-500 hover:border-indigo-600 px-4 py-2 rounded-md border-2 inline-flex items-center justify-center"
             >
               Watch Demo
             </Link>
           </div>
         </div>
-        <section id="features" className="py-20 lg:py-32">
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl lg:text-5xl font-bold mb-4">
+        <section id="features" className="py-12 sm:py-20 lg:py-32">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="text-center mb-10 sm:mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
                 Everything You Need
               </h2>
-              <p className="text-xl max-w-2xl mx-auto">
+              <p className="text-lg sm:text-xl max-w-2xl mx-auto">
                 Powerful features designed to simplify your inventory management
                 and boost productivity.
               </p>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <div className="p-8 rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all">
-                <h3 className="text-xl font-semibold mb-2">
-                  <CiBoxes className="text-5xl text-white my-2 bg-indigo-600 rounded-md p-1.5" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              <div className="p-6 sm:p-8 rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center gap-2">
+                  <CiBoxes className="text-4xl sm:text-5xl text-white my-2 bg-indigo-600 rounded-md p-1.5" />
                   Real-Time Tracking
                 </h3>
                 <p>
@@ -57,9 +57,9 @@ export default function Home() {
                   real-time with automatic updates and alerts.
                 </p>
               </div>
-              <div className="p-8 rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all">
-                <h3 className="text-xl font-semibold mb-2">
-                  <FaChartBar className="text-5xl text-white my-2 bg-indigo-600 rounded-md p-1.5" />
+              <div className="p-6 sm:p-8 rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center gap-2">
+                  <FaChartBar className="text-4xl sm:text-5xl text-white my-2 bg-indigo-600 rounded-md p-1.5" />
                   Analytics & Reports
                 </h3>
                 <p>
@@ -67,9 +67,9 @@ export default function Home() {
                   analytics and dashboards.
                 </p>
               </div>
-              <div className="p-8 rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all">
-                <h3 className="text-xl font-semibold mb-2">
-                  <FaBell className="text-5xl text-white my-2 bg-indigo-600 rounded-md p-1.5" />
+              <div className="p-6 sm:p-8 rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center gap-2">
+                  <FaBell className="text-4xl sm:text-5xl text-white my-2 bg-indigo-600 rounded-md p-1.5" />
                   Smart Alerts
                 </h3>
                 <p>
@@ -77,9 +77,9 @@ export default function Home() {
                   reorder recommendations.
                 </p>
               </div>
-              <div className="p-8 rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all">
-                <h3 className="text-xl font-semibold mb-2">
-                  <FaBolt className="text-5xl text-white my-2 bg-indigo-600 rounded-md p-1.5" />
+              <div className="p-6 sm:p-8 rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center gap-2">
+                  <FaBolt className="text-4xl sm:text-5xl text-white my-2 bg-indigo-600 rounded-md p-1.5" />
                   Quick Operations
                 </h3>
                 <p>
@@ -87,9 +87,9 @@ export default function Home() {
                   operations.
                 </p>
               </div>
-              <div className="p-8 rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all">
-                <h3 className="text-xl font-semibold mb-2">
-                  <FaShield className="text-5xl text-white my-2 bg-indigo-600 rounded-md p-1.5" />
+              <div className="p-6 sm:p-8 rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center gap-2">
+                  <FaShield className="text-4xl sm:text-5xl text-white my-2 bg-indigo-600 rounded-md p-1.5" />
                   Secure & Reliable
                 </h3>
                 <p>
@@ -97,9 +97,9 @@ export default function Home() {
                   uptime guarantee.
                 </p>
               </div>
-              <div className="p-8 rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all">
-                <h3 className="text-xl font-semibold mb-2">
-                  <FaPlug className="text-5xl text-white my-2 bg-indigo-600 rounded-md p-1.5" />
+              <div className="p-6 sm:p-8 rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center gap-2">
+                  <FaPlug className="text-4xl sm:text-5xl text-white my-2 bg-indigo-600 rounded-md p-1.5" />
                   Easy Integration
                 </h3>
                 <p>
@@ -112,15 +112,15 @@ export default function Home() {
         </section>
         <section
           id="benefits"
-          className="py-20 lg:py-32 bg-gray-50 dark:bg-gray-800"
+          className="py-12 sm:py-20 lg:py-32 bg-gray-50 dark:bg-gray-800"
         >
-          <div className="container mx-auto px-6">
-            <div className="grid lg:grid-cols-2 items-center gap-4">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-8">
               <div>
-                <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
                   Transform How You Manage Inventory
                 </h2>
-                <p className="text-xl mb-8">
+                <p className="text-lg sm:text-xl mb-8">
                   Join thousands of business that have streamlined their
                   operations and increased their efficiency with InventoryPro
                 </p>
@@ -151,7 +151,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="relative w-full">
+              <div className="relative w-full mt-8 lg:mt-0">
                 <div className="aspect-square rounded-2xl shadow-2xl overflow-hidden bg-white dark:bg-gray-700">
                   <div className="absolute inset-0 bg-opacity-10 backdrop-blur-sm p-4 sm:p-8 overflow-y-auto">
                     <div className="bg-white dark:bg-gray-700 rounded-xl p-4 sm:p-6 shadow-lg mb-4">
@@ -204,12 +204,12 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <section className="py-20 lg:py-32 bg-indigo-600">
-          <div className="container mx-auto px-6 text-center">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-indigo-100">
+        <section className="py-12 sm:py-20 lg:py-32 bg-indigo-600">
+          <div className="container mx-auto px-4 sm:px-6 text-center">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-indigo-100">
               Ready to Optimize Your Inventory?
             </h2>
-            <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
               Start your free 14-day trial today. No credit card required.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

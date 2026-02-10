@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { FiPackage } from "react-icons/fi";
 import { MdOutlineDashboard } from "react-icons/md";
 import Image from "next/image";
-import { useAuth } from "@/src/context/authContext";
 import { ReactNode } from "react";
 import { FaArrowTrendUp } from "react-icons/fa6";
 import { IoSettingsOutline } from "react-icons/io5";
+import { User } from "@/src/types/user";
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard", icon: <MdOutlineDashboard /> },
@@ -28,11 +28,6 @@ const navLinks = [
     label: "Settings",
     icon: <IoSettingsOutline />,
   },
-];
-
-const userMenuItems = [
-  { label: "Profile", action: "profile" },
-  { label: "Logout", action: "logout" },
 ];
 
 function NavLink({
@@ -72,34 +67,21 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const [user, setUser] = useState<User | null>(null);
 
-  // Close user menu on outside click
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        userMenuRef.current &&
-        !userMenuRef.current.contains(e.target as Node)
-      ) {
-        setUserMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    fetch("/api/me")
+      .then((res) => res.json())
+      .then((data) => setUser(data.c === 200 ? data.d.user : null))
+      .catch((error) => console.error("Failed to fetch user:", error));
   }, []);
+
+  console.log("Current user in DashboardLayout:", user?.avatar_url);
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname === "/dashboard";
     return pathname.startsWith(href);
-  };
-
-  const handleMenuAction = async (action: string) => {
-    setUserMenuOpen(false);
-    if (action === "logout") await logout();
-    // Add other actions here (e.g., navigate to profile)
   };
 
   return (
@@ -144,35 +126,23 @@ export default function DashboardLayout({
           >
             ☰
           </button>
-          <div ref={userMenuRef} className="relative">
-            <button
-              onClick={() => setUserMenuOpen((prev) => !prev)}
+          <div className="relative">
+            <div
               aria-label="User menu"
-              className="border-2 border-gray-200 dark:border-gray-700 rounded-full"
+              className="border-2 dark:border-gray-200/50 border-gray-700 rounded-full"
             >
-              <Image
-                src="/unknown-user.jpg"
-                alt="User Avatar"
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
-            </button>
-            {userMenuOpen && (
-              <div className="absolute top-full right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-10">
-                <ul className="space-y-1 p-2">
-                  {userMenuItems.map((item) => (
-                    <li
-                      key={item.action}
-                      onClick={() => handleMenuAction(item.action)}
-                      className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer rounded"
-                    >
-                      {item.label}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              {user ? (
+                <Image
+                  src={user.avatar_url || "/unknown-user.jpg"}
+                  alt="User Avatar"
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-gray-300 rounded-full" />
+              )}
+            </div>
           </div>
         </header>
 

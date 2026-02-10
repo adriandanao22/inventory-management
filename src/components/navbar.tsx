@@ -6,9 +6,9 @@ import { ThemeSwitcher } from "./themeSwitcher";
 import Link from "next/link";
 
 const navLinks = [
-  { href: "#features", label: "Features" },
-  { href: "#benefits", label: "Benefits" },
-  { href: "#pricing", label: "Pricing" },
+  { href: "/#features", label: "Features" },
+  { href: "/#benefits", label: "Benefits" },
+  { href: "/pricing", label: "Pricing" },
 ];
 
 export default function Navbar() {

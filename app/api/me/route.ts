@@ -16,7 +16,18 @@ export async function GET() {
     return NextResponse.json({ c: 401, m: "Unauthorized", d: null });
   }
 
-  return NextResponse.json({ c: 200, m: "Success", d: { user: payload } } );
+  const supabase = await createClient();
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("id, email, username, low_stock_limit, avatar_url, created_at")
+    .eq("id", payload.userId)
+    .single();
+
+  if (error || !user) {
+    return NextResponse.json({ c: 500, m: "Failed to fetch user data", d: error });
+  }
+
+  return NextResponse.json({ c: 200, m: "Success", d: { user } } );
 }
 
 // PUT /api/me — Update profile (username, email)

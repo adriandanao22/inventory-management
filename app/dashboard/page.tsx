@@ -189,9 +189,9 @@ export default function DashboardPage() {
     },
   ];
 
-  const lowStockItems = dashboardData?.lowStockItems ?? [];
-  const recentActivity = dashboardData?.recentActivity ?? [];
-  const topProducts = dashboardData?.topProducts ?? [];
+  const lowStockItems = (dashboardData?.lowStockItems ?? []).slice(0, 5);
+  const recentActivity = (dashboardData?.recentActivity ?? []).slice(0, 5);
+  const topProducts = (dashboardData?.topProducts ?? []).slice(0, 5);
 
   return (
     <div className="space-y-6">

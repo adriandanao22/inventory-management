@@ -4,6 +4,7 @@ export interface User {
   username: string;
   password: string;
   low_stock_limit: number;
+  avatar_url?: string;
   created_at: string;
 }
 

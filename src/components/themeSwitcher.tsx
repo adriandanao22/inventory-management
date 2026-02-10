@@ -24,7 +24,7 @@ export function ThemeSwitcher() {
       onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
       className="flex h-6 w-6 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors justify-center items-center"
     >
-      {currentTheme === "dark" ? <FiSun /> : <FiMoon />}
+      {currentTheme === "dark" ? <FiMoon /> : <FiSun />}
     </button>
   );
 }
