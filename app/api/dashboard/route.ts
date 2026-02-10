@@ -47,12 +47,7 @@ export async function GET() {
 
   // Fetch top products by total outgoing units
   const { data: topProducts } = await supabase
-    .from("stock_adjustments")
-    .select("product_id, units, products:product_id(name, stock)")
-    .eq("user_id", payload.userId)
-    .eq("type", "outgoing")
-    .order("units", { ascending: false })
-    .limit(5);
+    .rpc("top_products_by_units", { _user_id: payload.userId, _limit_count: 5 });
 
   return NextResponse.json({
     c: 200,

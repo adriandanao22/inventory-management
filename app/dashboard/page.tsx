@@ -35,7 +35,8 @@ interface DashboardData {
   topProducts: {
     product_id: string;
     units: number;
-    products: { name: string; stock: number };
+    name: string;
+    stock: number;
   }[];
 }
 
@@ -357,10 +358,10 @@ export default function DashboardPage() {
                       <div className="grow text-sm">
                         <div className="flex justify-between">
                           <h1 className="font-semibold text-gray-900 dark:text-white">
-                            {product.products?.name}
+                            {product.name}
                           </h1>
                           <p className="text-gray-500 dark:text-gray-400">
-                            {product.products?.stock} Left
+                            {product.stock} Left
                           </p>
                         </div>
                         <div className="flex justify-between text-sm">

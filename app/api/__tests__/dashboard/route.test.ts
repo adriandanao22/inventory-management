@@ -17,7 +17,7 @@ queryBuilder.limit = jest.fn(() => queryBuilder);
 const mockFrom = jest.fn(() => queryBuilder);
 
 jest.mock("@/src/lib/supabase/server", () => ({
-  createClient: () => ({ from: mockFrom }),
+  createClient: () => ({ from: mockFrom, rpc: jest.fn(() => Promise.resolve({ data: [] })) }),
 }));
 
 jest.mock("next/headers", () => ({
