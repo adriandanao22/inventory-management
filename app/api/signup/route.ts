@@ -9,8 +9,8 @@ import {
 } from "@/src/lib/api";
 
 export const POST = wrapHandler(async (req: Request) => {
-  const { token, email, username, password, confirmPassword } =
-    await req.json();
+  const request = await req.json();
+  const { token, email, username, password, confirmPassword } = request.d;
   const supabase = await createClient();
 
   const captchaRes = await fetch(

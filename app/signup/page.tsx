@@ -49,11 +49,15 @@ export default function SignUp() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        token: captchaToken,
-        email,
-        username,
-        password,
-        confirmPassword,
+        c: 200,
+        m: "Signup successful",
+        d: {
+          token: captchaToken,
+          email,
+          username,
+          password,
+          confirmPassword,
+        },
       }),
     })
       .then((res) => res.json())

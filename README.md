@@ -8,6 +8,7 @@ A full-stack inventory management application built with Next.js, Supabase, and 
 
 - [Tech Stack](#tech-stack)
 - [Features](#features)
+- [Client-side Feedback (Error & Success Messages)](#client-side-feedback-error--success-messages)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
@@ -33,16 +34,16 @@ A full-stack inventory management application built with Next.js, Supabase, and 
 
 | Layer           | Technology                                      |
 | --------------- | ----------------------------------------------- |
-| Framework       | Next.js 16 (App Router, Turbopack)              |
+| Framework       | Next.js (App Router, Turbopack)                 |
 | Language        | TypeScript 5                                    |
 | Database        | Supabase (PostgreSQL)                           |
 | Auth            | JWT (`jsonwebtoken`) + bcrypt, httpOnly cookies |
-| Styling         | Tailwind CSS 4, `clsx` + `tailwind-merge`       |
+| Styling         | Tailwind CSS, `clsx` + `tailwind-merge`         |
 | Charts          | Recharts                                        |
 | Email           | Resend                                          |
 | Spam Protection | Google reCAPTCHA v2                             |
 | Theming         | `next-themes` (system / light / dark)           |
-| Testing         | Jest 30, React Testing Library                  |
+| Testing         | Jest, React Testing Library                     |
 
 ---
 
@@ -58,22 +59,51 @@ A full-stack inventory management application built with Next.js, Supabase, and 
 
 ---
 
+## Client-side Feedback (Error & Success Messages)
+
+UI feedback for API responses is surfaced in the app using the reusable [`Response`](src/components/response.tsx) component and page-local message states. Below is a concise map of where success/error messages are rendered and where pages currently only log errors (so you can add visible feedback).
+
+- Pages/components that render user-visible messages (use `Response` or show banners/alerts):
+  - Login: [app/login/page.tsx](app/login/page.tsx)
+  - Signup: [app/signup/page.tsx](app/signup/page.tsx)
+  - New Product: [app/dashboard/products/new/page.tsx](app/dashboard/products/new/page.tsx)
+  - Product Form (create/edit): [`ProductForm`](app/dashboard/products/ProductForm.tsx) used by new/edit flows
+  - Settings: [app/dashboard/settings/page.tsx](app/dashboard/settings/page.tsx)
+  - New Stock Adjustment: [app/dashboard/stock-adjustment/new/page.tsx](app/dashboard/stock-adjustment/new/page.tsx)
+  - Stock Adjustments list: [app/dashboard/stock-adjustment/page.tsx](app/dashboard/stock-adjustment/page.tsx) (message state + modal)
+  - StockAdjustmentForm: [`StockAdjustmentForm`](app/dashboard/stock-adjustment/StockAdjustmentForm.tsx)
+  - Product detail / delete flows show user-facing alerts: [app/dashboard/products/[id]/page.tsx](app/dashboard/products/[id]/page.tsx)
+  - Edit product submit errors show alerts: [app/dashboard/products/[id]/edit/page.tsx](app/dashboard/products/[id]/edit/page.tsx)
+
+- Pages that currently only log errors (recommend adding visible banners using [`Response`](src/components/response.tsx) or a small ErrorBanner component):
+  - Products list: [app/dashboard/products/page.tsx](app/dashboard/products/page.tsx) — fetch errors are currently `console.error`
+  - Product edit (initial load): [app/dashboard/products/[id]/edit/page.tsx](app/dashboard/products/[id]/edit/page.tsx) — initial fetch errors logged only
+  - Product view (initial load): [app/dashboard/products/[id]/page.tsx](app/dashboard/products/[id]/page.tsx) — initial fetch errors logged only (delete shows alert)
+  - Dashboard chart / data fetch: [app/dashboard/page.tsx](app/dashboard/page.tsx) — fetch errors logged only
+  - Dashboard layout / auth fetch: [app/dashboard/layout.tsx](app/dashboard/layout.tsx) — user fetch failures logged only
+  - AuthProvider (silent fallback): [src/context/authContext.tsx](src/context/authContext.tsx)
+
+Recommendation: surface all non-200 API responses by setting a page-level message state and rendering [`Response`](src/components/response.tsx) or a small ErrorBanner at the top of the page. This improves UX and consistency across flows.
+
+---
+
 ## Project Structure
 
 ```
 ├── app/
-│   ├── layout.tsx              # Root layout (fonts, providers, auth context)
-│   ├── page.tsx                # Landing page
-│   ├── login/page.tsx          # Login form
-│   ├── signup/page.tsx         # Signup form
+│   ├── layout.tsx                    # Root layout (fonts, providers, auth context)
+│   ├── page.tsx                      # Landing page
+│   ├── login/page.tsx                # Login form
+│   ├── signup/page.tsx               # Signup form
+│   ├── pricing/page.tsx              # Pricing page
 │   ├── dashboard/
-│   │   ├── layout.tsx          # Dashboard shell (navbar, footer)
-│   │   ├── page.tsx            # Dashboard overview (metrics, charts)
+│   │   ├── layout.tsx                # Dashboard shell (navbar, footer)
+│   │   ├── page.tsx                  # Dashboard overview (metrics, charts)
 │   │   ├── products/
-│   │   │   ├── page.tsx        # Product list
-│   │   │   ├── new/page.tsx    # Create product
+│   │   │   ├── page.tsx              # Product list
+│   │   │   ├── new/page.tsx          # Create product
 │   │   │   └── [id]/
-│   │   │       ├── page.tsx    # Product detail
+│   │   │       ├── page.tsx          # Product detail
 │   │   │       └── edit/page.tsx
 │   │   ├── stock-adjustment/page.tsx
 │   │   └── settings/page.tsx
@@ -81,31 +111,35 @@ A full-stack inventory management application built with Next.js, Supabase, and 
 │       ├── login/route.ts
 │       ├── signup/route.ts
 │       ├── logout/route.ts
-│       ├── me/route.ts              # GET/PUT profile
-│       ├── me/password/route.ts     # PUT change password
-│       ├── me/settings/route.ts     # GET/PUT notification settings
-│       ├── products/route.ts        # GET (list) / POST (create)
-│       ├── products/[id]/route.ts   # GET / PUT / DELETE
+│       ├── me/route.ts                    # GET/PUT profile
+│       ├── me/avatar/route.ts             # PUT avatar upload
+│       ├── me/password/route.ts           # PUT change password
+│       ├── me/settings/route.ts           # GET/PUT notification settings
+│       ├── products/route.ts              # GET (list) / POST (create)
+│       ├── products/[id]/route.ts         # GET / PUT / DELETE
+│       ├── products/export/route.ts       # GET CSV export
 │       ├── stock-adjustments/route.ts
+│       ├── stock-adjustments/export/route.ts # GET CSV export
 │       ├── dashboard/route.ts
-│       └── notes/route.ts
+│       └── dashboard/chart/route.ts       # GET chart data
 ├── src/
-│   ├── components/             # Reusable UI (Navbar, Footer, Card, ThemeSwitcher)
-│   ├── context/authContext.tsx  # AuthProvider + useAuth() hook
+│   ├── components/                 # Reusable UI (Navbar, Footer, Card, ThemeSwitcher)
+│   ├── context/authContext.tsx    # AuthProvider + useAuth() hook
 │   ├── lib/
-│   │   ├── auth.ts             # signToken / verifyToken
-│   │   ├── resend.ts           # sendLowStockEmail
-│   │   ├── utils.ts            # cn() helper (clsx + tailwind-merge)
+│   │   ├── auth.ts                 # signToken / verifyToken
+│   │   ├── resend.ts               # sendLowStockEmail
+│   │   ├── format.ts               # Formatting helpers
+│   │   ├── utils.ts                # cn() helper (clsx + tailwind-merge)
 │   │   └── supabase/
-│   │       ├── client.ts       # Browser-side Supabase client
-│   │       └── server.ts       # Server-side Supabase client (service role)
-│   └── types/                  # TypeScript interfaces
+│   │       ├── client.ts           # Browser-side Supabase client
+│   │       └── server.ts           # Server-side Supabase client (service role)
+│   └── types/                      # TypeScript interfaces
 │       ├── user.ts
 │       ├── products.ts
 │       ├── auth.ts
 │       ├── stockAdjustments.ts
-│       └── index.ts            # Barrel export
-└── __tests__/                  # Co-located under app/api/__tests__/ and src/__tests__/
+│       └── index.ts                # Barrel export
+└── __tests__/                      # Co-located under app/api/__tests__/ and src/__tests__/
 ```
 
 ---
@@ -126,9 +160,10 @@ Create a `.env.local` file in the project root:
 
 ```env
 # Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # JWT
 JWT_SECRET=your-jwt-secret
@@ -155,6 +190,7 @@ CREATE TABLE users (
   email         TEXT UNIQUE NOT NULL,
   username      TEXT UNIQUE NOT NULL,
   password      TEXT NOT NULL,
+  avatar_url    TEXT,
   low_stock_limit INTEGER NOT NULL DEFAULT 5,
   created_at    TIMESTAMPTZ DEFAULT now()
 );
@@ -270,6 +306,8 @@ Authentication uses JWT tokens stored in `auth-token` httpOnly cookies. Protecte
 
 Register a new user.
 
+**Body:** `{ d: { token, email, username, password, confirmPassword } }`
+
 | Field             | Type     | Required |
 | ----------------- | -------- | -------- |
 | `token`           | `string` | Yes      |
@@ -278,9 +316,7 @@ Register a new user.
 | `password`        | `string` | Yes      |
 | `confirmPassword` | `string` | Yes      |
 
-**Note:** This route uses a flat request body, not wrapped in `{ d: ... }`.
-
-**Responses:** `201` success, `400` captcha/validation error, `500` server error.
+**Responses:** `200` success (sets cookie), `400` captcha/validation/duplicate email error, `500` server error.
 
 ---
 
@@ -308,7 +344,7 @@ Clear the auth cookie. No body required.
 
 Returns the authenticated user's JWT payload.
 
-**Response `d`:** `{ user: { userId, email, username } }`
+**Response `d`:** `{ user: { id, email, username, low_stock_limit, avatar_url?, created_at } }`
 
 ---
 
@@ -356,13 +392,15 @@ Update notification settings.
 
 List all products for the authenticated user.
 
-| Query Param | Type     | Description                   |
-| ----------- | -------- | ----------------------------- |
-| `category`  | `string` | Filter by category            |
-| `status`    | `string` | Filter by status              |
-| `search`    | `string` | Search by name or SKU (ilike) |
+| Query Param | Type     | Description                               |
+| ----------- | -------- | ----------------------------------------- |
+| `category`  | `string` | Filter by category                        |
+| `status`    | `string` | Filter by status                          |
+| `search`    | `string` | Search by name or SKU (ilike)            |
+| `page`      | `number` | Page number (default `1`)                |
+| `limit`     | `number` | Page size / max results (default `20`)   |
 
-**Response `d`:** `Product[]`
+**Response `d`:** `{ items: Product[], total: number, page: number, pageSize: number }`
 
 ---
 
@@ -408,13 +446,14 @@ Delete a product.
 
 List stock adjustments with product and user details.
 
-| Query Param  | Type     | Description                  |
-| ------------ | -------- | ---------------------------- |
-| `type`       | `string` | `"incoming"` or `"outgoing"` |
-| `product_id` | `string` | Filter by product            |
-| `limit`      | `number` | Max results (default 50)     |
+| Query Param  | Type     | Description                               |
+| ------------ | -------- | ----------------------------------------- |
+| `type`       | `string` | `"incoming"` or `"outgoing"`             |
+| `product_id` | `string` | Filter by product                         |
+| `page`       | `number` | Page number (default `1`)                 |
+| `limit`      | `number` | Page size / max results (default `20`)    |
 
-**Response `d`:** `StockAdjustmentWithDetails[]`
+**Response `d`:** `{ items: StockAdjustmentWithDetails[], total: number, page: number, pageSize: number }`
 
 ---
 
@@ -454,6 +493,8 @@ Aggregated metrics for the authenticated user.
 }
 ```
 
+**Note:** This endpoint relies on a Supabase RPC function `top_products_by_units` to fetch the top products; ensure this function exists in your database.
+
 ---
 
 ## Database Schema
@@ -489,7 +530,7 @@ Aggregated metrics for the authenticated user.
 
 ## Testing
 
-Tests use **Jest 30** with `ts-jest`. API route tests use `/** @jest-environment node */`; component tests use `jsdom`.
+Tests use **Jest** with `ts-jest`. API route tests use `/** @jest-environment node */`; component tests use `jsdom`.
 
 ```bash
 # Run all tests
@@ -513,7 +554,7 @@ npm run test:ci
 | `POST /api/login`  | 5     | Validation, credentials, success                          |
 | `POST /api/signup` | 5     | reCAPTCHA, passwords, duplicates, success                 |
 | Products CRUD      | 6     | List, filters, create, duplicate SKU                      |
-| Products `[id]`    | 6     | GET, PUT, DELETE, 404, duplicate SKU                      |
+| Products `[id]`    | 8     | GET, PUT, DELETE, 404, duplicate SKU                      |
 | Stock Adjustments  | 8     | Auth, 404, insufficient, status transitions, email alerts |
 | Dashboard          | 2     | Metrics aggregation, low-stock items                      |
 | User Settings      | 8     | GET/PUT low-stock limit, validation                       |
