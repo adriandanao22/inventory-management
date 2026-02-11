@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Card } from "@/src/components/card";
 import { useEffect, useState, useCallback } from "react";
 import { Product } from "@/src/types/products";
+import Response from "@/src/components/response";
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -15,6 +16,10 @@ export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"error" | "success">(
+    "error",
+  );
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -27,9 +32,15 @@ export default function ProductsPage() {
       const json = await res.json();
       if (json.c === 200) {
         setProducts(json.d ?? []);
+        setMessage(null);
+      } else {
+        setMessage(json.m || "Failed to load products");
+        setMessageType("error");
       }
     } catch (error) {
       console.error("Error fetching products:", error);
+      setMessage("Network error while fetching products");
+      setMessageType("error");
     } finally {
       setIsLoading(false);
     }
@@ -61,6 +72,8 @@ export default function ProductsPage() {
           Add Product
         </Link>
       </div>
+
+      <Response message={message} type={messageType} className="mb-4" />
 
       {/* Filters */}
       <Card className="p-3">

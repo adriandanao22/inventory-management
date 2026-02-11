@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { IoMdArrowBack } from "react-icons/io";
 import { Card } from "@/src/components/card";
+import Response from "@/src/components/response";
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -12,6 +13,10 @@ export default function EditProductPage() {
   const productId = params.id;
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"error" | "success">(
+    "error",
+  );
 
   const [form, setForm] = useState({
     name: "",
@@ -43,9 +48,15 @@ export default function EditProductPage() {
             supplier: p.supplier || "",
             location: p.location || "",
           });
+          setMessage(null);
+        } else {
+          setMessage(json.m || "Failed to load product");
+          setMessageType("error");
         }
       } catch (error) {
         console.error("Error fetching product:", error);
+        setMessage("Network error while loading product");
+        setMessageType("error");
       } finally {
         setIsLoading(false);
       }
@@ -96,11 +107,13 @@ export default function EditProductPage() {
       if (json.c === 200) {
         router.push(`/dashboard/products/${productId}`);
       } else {
-        alert(json.m || "Failed to update product");
+        setMessage(json.m || "Failed to update product");
+        setMessageType("error");
       }
     } catch (error) {
       console.error("Error updating product:", error);
-      alert("Failed to update product");
+      setMessage("Failed to update product");
+      setMessageType("error");
     } finally {
       setIsSubmitting(false);
     }
@@ -136,6 +149,8 @@ export default function EditProductPage() {
           Update product information
         </p>
       </div>
+
+      <Response message={message} type={messageType} className="mb-4" />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* General Information */}

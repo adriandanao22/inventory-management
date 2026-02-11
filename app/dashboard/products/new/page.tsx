@@ -9,6 +9,7 @@ import { Card } from "@/src/components/card";
 export default function NewProductPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -65,11 +66,11 @@ export default function NewProductPage() {
         router.push("/dashboard/products");
       } else {
         console.log("Error creating product:", json.m);
-        alert(json.m || "Failed to create product");
+        setMessage(json.m || "Failed to create product");
       }
     } catch (error) {
       console.error("Error creating product:", error);
-      alert("Failed to create product");
+      setMessage("Failed to create product");
     } finally {
       setIsSubmitting(false);
     }
@@ -264,6 +265,12 @@ export default function NewProductPage() {
             </div>
           </div>
         </Card>
+
+        {message && (
+          <div className="text-sm text-red-500 dark:text-red-400">
+            <p>{message}</p>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex justify-end gap-3">

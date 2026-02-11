@@ -17,6 +17,7 @@ import {
 } from "recharts";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import { ReactNode, useEffect, useState } from "react";
+import Response from "@/src/components/response";
 import { Product } from "@/src/types/products";
 import { StockAdjustment } from "@/src/types/stockAdjustments";
 
@@ -99,6 +100,10 @@ export default function DashboardPage() {
     { month: string; incoming: number; outgoing: number }[]
   >([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"error" | "success">(
+    "error",
+  );
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -150,9 +155,14 @@ export default function DashboardPage() {
             }));
 
           setChartData(chart);
+        } else {
+          setMessage(adjJson.m || "Failed to load chart data");
+          setMessageType("error");
         }
       } catch (error) {
         console.error("Error fetching dashboard:", error);
+        setMessage("Network error while fetching dashboard");
+        setMessageType("error");
       } finally {
         setIsLoading(false);
       }
@@ -205,6 +215,8 @@ export default function DashboardPage() {
           Welcome back, {user?.username}! Here&apos;s your inventory overview.
         </p>
       </div>
+
+      <Response message={message} type={messageType} className="mb-4" />
 
       {/* Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

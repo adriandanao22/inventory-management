@@ -15,7 +15,7 @@ import {
 
 // GET /api/products/[id] — Get a single product
 export const GET = wrapHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
     const cookieStore = await cookies();
     const token = cookieStore.get("auth-token")?.value;
 
@@ -48,7 +48,7 @@ export const GET = wrapHandler(
 
 // PUT /api/products/[id] — Update a product
 export const PUT = wrapHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
     const cookieStore = await cookies();
     const token = cookieStore.get("auth-token")?.value;
 
@@ -104,7 +104,7 @@ export const PUT = wrapHandler(
 
 // DELETE /api/products/[id] — Delete a product
 export const DELETE = wrapHandler(
-  async (req: NextRequest, { params }: { params: { id: string } }) => {
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
     const cookieStore = await cookies();
     const token = cookieStore.get("auth-token")?.value;
 

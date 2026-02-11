@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Card } from "@/src/components/card";
+import Response from "@/src/components/response";
 import { Product } from "@/src/types/products";
 import { StockAdjustment } from "@/src/types/stockAdjustments";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
@@ -29,6 +30,10 @@ export default function StockAdjustmentsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [filterType, setFilterType] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"error" | "success">(
+    "error",
+  );
 
   const [form, setForm] = useState({
     product_id: "",
@@ -46,9 +51,15 @@ export default function StockAdjustmentsPage() {
       const json = await res.json();
       if (json.c === 200) {
         setAdjustments(json.d ?? []);
+        setMessage(null);
+      } else {
+        setMessage(json.m || "Failed to load adjustments");
+        setMessageType("error");
       }
     } catch (error) {
       console.error("Error fetching adjustments:", error);
+      setMessage("Network error while fetching adjustments");
+      setMessageType("error");
     } finally {
       setIsLoading(false);
     }
@@ -65,9 +76,15 @@ export default function StockAdjustmentsPage() {
         const json = await res.json();
         if (json.c === 200) {
           setProducts(json.d ?? []);
+          setMessage(null);
+        } else {
+          setMessage(json.m || "Failed to load products");
+          setMessageType("error");
         }
       } catch (error) {
         console.error("Error fetching products:", error);
+        setMessage("Network error while fetching products");
+        setMessageType("error");
       }
     };
     fetchProducts();
@@ -97,11 +114,13 @@ export default function StockAdjustmentsPage() {
         setShowForm(false);
         fetchAdjustments();
       } else {
-        alert(json.m || "Failed to create adjustment");
+        setMessage(json.m || "Failed to create adjustment");
+        setMessageType("error");
       }
     } catch (error) {
       console.error("Error creating adjustment:", error);
-      alert("Failed to create adjustment");
+      setMessage("Failed to create adjustment");
+      setMessageType("error");
     } finally {
       setIsSubmitting(false);
     }
@@ -132,6 +151,8 @@ export default function StockAdjustmentsPage() {
           New Adjustment
         </button>
       </div>
+
+      <Response message={message} type={messageType} className="mb-4" />
 
       {/* New Adjustment Form */}
       {showForm && (

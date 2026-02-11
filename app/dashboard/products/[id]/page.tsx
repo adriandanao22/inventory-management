@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { IoMdArrowBack } from "react-icons/io";
 import { Card } from "@/src/components/card";
+import Response from "@/src/components/response";
 import { Product } from "@/src/types/products";
 
 export default function ProductViewPage() {
@@ -14,6 +15,10 @@ export default function ProductViewPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"error" | "success">(
+    "error",
+  );
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -22,9 +27,15 @@ export default function ProductViewPage() {
         const json = await res.json();
         if (json.c === 200) {
           setProduct(json.d);
+          setMessage(null);
+        } else {
+          setMessage(json.m || "Failed to load product");
+          setMessageType("error");
         }
       } catch (error) {
         console.error("Error fetching product:", error);
+        setMessage("Network error while fetching product");
+        setMessageType("error");
       } finally {
         setIsLoading(false);
       }
@@ -43,11 +54,13 @@ export default function ProductViewPage() {
       if (json.c === 200) {
         router.push("/dashboard/products");
       } else {
-        alert(json.m || "Failed to delete product");
+        setMessage(json.m || "Failed to delete product");
+        setMessageType("error");
       }
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("Failed to delete product");
+      setMessage("Failed to delete product");
+      setMessageType("error");
     } finally {
       setIsDeleting(false);
     }
@@ -89,6 +102,7 @@ export default function ProductViewPage() {
 
   return (
     <div className="space-y-6">
+      <Response message={message} type={messageType} className="mb-4" />
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
