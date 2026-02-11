@@ -29,7 +29,7 @@ function makeRequest(body: Record<string, unknown>) {
   return new NextRequest("http://localhost/api/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ d: body }),
   });
 }
 
