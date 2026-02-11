@@ -3,7 +3,11 @@ import { GET, POST } from "@/app/api/products/route";
 import { NextRequest } from "next/server";
 
 // --- Supabase mock with chainable query builder ---
-const mockQueryResult = { data: null as unknown, error: null as unknown };
+const mockQueryResult = {
+  data: null as unknown,
+  count: 0,
+  error: null as unknown,
+};
 
 const queryBuilder: Record<string, jest.Mock> = {};
 queryBuilder.select = jest.fn(() => queryBuilder);
@@ -14,6 +18,13 @@ queryBuilder.or = jest.fn(() => queryBuilder);
 queryBuilder.order = jest.fn(() => queryBuilder);
 queryBuilder.limit = jest.fn(() => queryBuilder);
 queryBuilder.single = jest.fn(() => Promise.resolve(mockQueryResult));
+queryBuilder.range = jest.fn(() =>
+  Promise.resolve({
+    data: mockQueryResult.data,
+    count: mockQueryResult.count,
+    error: mockQueryResult.error,
+  }),
+);
 // For non-single queries, resolve via then
 queryBuilder.then = undefined as unknown as jest.Mock;
 
@@ -55,6 +66,7 @@ describe("GET /api/products", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockQueryResult.data = null;
+    mockQueryResult.count = 0;
     mockQueryResult.error = null;
   });
 
@@ -65,49 +77,21 @@ describe("GET /api/products", () => {
       { id: "2", name: "Gadget", sku: "G-001", stock: 5 },
     ];
 
-    // Override the chain's last call to return data
-    queryBuilder.order.mockImplementationOnce(() => ({
-      ...queryBuilder,
-      then: (resolve: (val: { data: unknown; error: unknown }) => void) =>
-        resolve({ data: products, error: null }),
-      eq: jest.fn().mockReturnValue({
-        then: (resolve: (val: { data: unknown; error: unknown }) => void) =>
-          resolve({ data: products, error: null }),
-        or: jest.fn().mockReturnValue({
-          then: (resolve: (val: { data: unknown; error: unknown }) => void) =>
-            resolve({ data: products, error: null }),
-        }),
-        eq: jest.fn().mockReturnValue({
-          then: (resolve: (val: { data: unknown; error: unknown }) => void) =>
-            resolve({ data: products, error: null }),
-          or: jest.fn().mockReturnValue({
-            then: (resolve: (val: { data: unknown; error: unknown }) => void) =>
-              resolve({ data: products, error: null }),
-          }),
-        }),
-      }),
-    }));
+    // Set up the mockQueryResult for .range
+    mockQueryResult.data = products;
+    mockQueryResult.count = products.length;
+    mockQueryResult.error = null;
 
     const res = await GET(makeGetRequest());
     const data = await res.json();
     expect(data.c).toBe(200);
-    expect(data.d).toEqual(products);
+    expect(data.d.items).toEqual(products);
   });
 
   it("Should return 500 on database error", async () => {
-    queryBuilder.order.mockImplementationOnce(() => ({
-      ...queryBuilder,
-      then: (resolve: (val: { data: unknown; error: unknown }) => void) =>
-        resolve({ data: null, error: { message: "DB error" } }),
-      eq: jest.fn().mockReturnValue({
-        then: (resolve: (val: { data: unknown; error: unknown }) => void) =>
-          resolve({ data: null, error: { message: "DB error" } }),
-        or: jest.fn().mockReturnValue({
-          then: (resolve: (val: { data: unknown; error: unknown }) => void) =>
-            resolve({ data: null, error: { message: "DB error" } }),
-        }),
-      }),
-    }));
+    mockQueryResult.data = null;
+    mockQueryResult.count = 0;
+    mockQueryResult.error = { message: "DB error" };
 
     const res = await GET(makeGetRequest());
     const data = await res.json();
@@ -123,19 +107,30 @@ describe("POST /api/products", () => {
   });
 
   it("Should return 400 if required fields are missing", async () => {
-    const res = await POST(makePostRequest({ d: { name: "", sku: "", price: 0 } }));
+    const res = await POST(
+      makePostRequest({ d: { name: "", sku: "", price: 0 } }),
+    );
     const data = await res.json();
     expect(data.c).toBe(400);
   });
 
   it("Should return 409 if SKU already exists", async () => {
     // SKU check returns existing product
-    queryBuilder.single.mockResolvedValueOnce({ data: { id: "existing" }, error: null });
+    queryBuilder.single.mockResolvedValueOnce({
+      data: { id: "existing" },
+      error: null,
+    });
 
     const res = await POST(
       makePostRequest({
-        d: { name: "Widget", sku: "DUP-001", price: 10, category: "Parts", stock: 5 },
-      })
+        d: {
+          name: "Widget",
+          sku: "DUP-001",
+          price: 10,
+          category: "Parts",
+          stock: 5,
+        },
+      }),
     );
     const data = await res.json();
     expect(data.c).toBe(409);
@@ -147,12 +142,21 @@ describe("POST /api/products", () => {
     // SKU check — not found
     queryBuilder.single.mockResolvedValueOnce({ data: null, error: null });
     // Insert — success
-    queryBuilder.single.mockResolvedValueOnce({ data: newProduct, error: null });
+    queryBuilder.single.mockResolvedValueOnce({
+      data: newProduct,
+      error: null,
+    });
 
     const res = await POST(
       makePostRequest({
-        d: { name: "Widget", sku: "W-001", price: 10, category: "Parts", stock: 5 },
-      })
+        d: {
+          name: "Widget",
+          sku: "W-001",
+          price: 10,
+          category: "Parts",
+          stock: 5,
+        },
+      }),
     );
     const data = await res.json();
     expect(data.c).toBe(201);
@@ -163,12 +167,21 @@ describe("POST /api/products", () => {
     // SKU check — not found
     queryBuilder.single.mockResolvedValueOnce({ data: null, error: null });
     // Insert — fails
-    queryBuilder.single.mockResolvedValueOnce({ data: null, error: { message: "DB error" } });
+    queryBuilder.single.mockResolvedValueOnce({
+      data: null,
+      error: { message: "DB error" },
+    });
 
     const res = await POST(
       makePostRequest({
-        d: { name: "Widget", sku: "W-001", price: 10, category: "Parts", stock: 5 },
-      })
+        d: {
+          name: "Widget",
+          sku: "W-001",
+          price: 10,
+          category: "Parts",
+          stock: 5,
+        },
+      }),
     );
     const data = await res.json();
     expect(data.c).toBe(500);

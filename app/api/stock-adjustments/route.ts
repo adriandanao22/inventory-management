@@ -27,14 +27,15 @@ export const GET = wrapHandler(async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
   const type = searchParams.get("type");
   const productId = searchParams.get("product_id");
-  const limit = parseInt(searchParams.get("limit") || "50");
 
   let query = supabase
     .from("stock_adjustments")
-    .select("*, products:product_id(name, sku), users:user_id(username)")
+    .select(
+      "*, products:product_id(name, sku), users:user_id(username)",
+      { count: "exact" },
+    )
     .eq("user_id", payload.userId)
-    .order("created_at", { ascending: false })
-    .limit(limit);
+    .order("created_at", { ascending: false });
 
   if (type) {
     query = query.eq("type", type);
@@ -44,11 +45,24 @@ export const GET = wrapHandler(async (req: NextRequest) => {
     query = query.eq("product_id", productId);
   }
 
-  const { data, error } = await query;
+  const page = Math.max(parseInt(searchParams.get("page") || "1", 10), 1);
+  const limit = Math.max(parseInt(searchParams.get("limit") || "20", 10), 1);
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  const { data, count, error } = await query.range(from, to);
 
   if (error) return jsonError("Error Fetching Stock Adjustments");
 
-  return jsonSuccess(data, "Stock Adjustments Fetched Successfully");
+  return jsonSuccess(
+    {
+      items: data ?? [],
+      total: count ?? 0,
+      page,
+      pageSize: limit,
+    },
+    "Stock Adjustments Fetched Successfully",
+  );
 });
 
 export const POST = wrapHandler(async (req: NextRequest) => {

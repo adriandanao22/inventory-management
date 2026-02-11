@@ -1,4 +1,4 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/src/lib/auth";
 import { createClient } from "@/src/lib/supabase/server";
@@ -8,6 +8,7 @@ import {
   jsonConflict,
   jsonCreated,
   jsonError,
+  jsonSuccess,
   jsonUnauthorized,
   wrapHandler,
 } from "@/src/lib/api";
@@ -32,7 +33,7 @@ export const GET = wrapHandler(async (req: NextRequest) => {
 
   let query = supabase
     .from("products")
-    .select("*")
+    .select("*", { count: "exact" })
     .eq("user_id", payload.userId)
     .order("created_at", { ascending: false });
 
@@ -42,11 +43,21 @@ export const GET = wrapHandler(async (req: NextRequest) => {
 
   if (search) query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`);
 
-  const { data, error } = await query;
+  const page = Math.max(parseInt(searchParams.get("page") || "1", 10), 1);
+  const limit = Math.max(parseInt(searchParams.get("limit") || "20", 10), 1);
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  const { data, count, error } = await query.range(from, to);
 
   if (error) return jsonError("Error Fetching Products");
 
-  return NextResponse.json({ c: 200, m: "Success", d: data });
+  return jsonSuccess({
+    items: data ?? [],
+    total: count ?? 0,
+    page,
+    pageSize: limit,
+  });
 });
 
 // POST /api/products — Create a new product

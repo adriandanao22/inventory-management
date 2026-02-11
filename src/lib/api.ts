@@ -16,6 +16,24 @@ export function jsonCreated(
   return NextResponse.json({ c: status, m: message, d: data }, { status });
 }
 
+export function jsonExported(
+  data: unknown = {},
+  message = "Exported",
+  title = "export.csv",
+  status = 200,
+) {
+  return NextResponse.json(
+    { c: status, m: message, d: data },
+    {
+      status,
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": `attachment; filename="${title}"`,
+      },
+    },
+  );
+}
+
 export function jsonError(message = "Internal Server Error", status = 500) {
   return NextResponse.json({ c: status, m: message, d: null }, { status });
 }
