@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
+import { wrapHandler, jsonSuccess } from "@/src/lib/api";
 
-export async function POST() {
-  const response = NextResponse.json({ c: 200, m: "Logout successful", d: null });
+export const POST = wrapHandler(async () => {
+  const response = jsonSuccess("Logout Success");
   response.cookies.set("auth-token", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 0
+    maxAge: 0,
   });
 
   return response;
-}
+});

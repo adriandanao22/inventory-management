@@ -1,59 +1,55 @@
 import { createClient } from "@/src/lib/supabase/server";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { GET } from "@/app/api/me/route";
+import {
+  wrapHandler,
+  jsonBadRequest,
+  jsonError,
+  jsonSuccess,
+} from "@/src/lib/api";
 
-export async function PUT(req: NextRequest) {
+export const PUT = wrapHandler(async (req: NextRequest) => {
   const supabase = await createClient();
 
-  try {
-    const userResponse = await GET();
-    const user = await userResponse.json();
-    
-    const formData = await req.formData();
-    const file = formData.get("avatar") as File | null;
+  const userResponse = await GET(req);
+  const user = await userResponse.json();
 
-    if (!file) {
-      return NextResponse.json({ c: 400, m: "No file uploaded", d: null });
-    }
+  const formData = await req.formData();
+  const file = formData.get("avatar") as File | null;
+  if (!file) return jsonBadRequest("No file uploaded");
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ c: 400, m: "Invalid File Type", d: null });
-    }
+  const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+  if (!allowedTypes.includes(file.type))
+    return jsonBadRequest("Invalid File Type");
 
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ c: 400, m: "File size exceeds 5MB", d: null });
-    }
+  if (file.size > 5 * 1024 * 1024)
+    return jsonBadRequest("File size exceeds 5MB");
 
-    const ext = file.name.split(".").pop();
-    const filePath = `${user.d?.user?.id}/avatar.${ext}`;
+  const ext = file.name.split(".").pop();
+  const filePath = `${user.d?.user?.id}/avatar.${ext}`;
 
-    const { error: uploadError } = await supabase.storage
+  const { error: uploadError } = await supabase.storage
     .from("avatars")
-    .upload(
-      filePath, file, {
-        upsert: true,
-        contentType: file.type,
-      }
-    )
+    .upload(filePath, file, {
+      upsert: true,
+      contentType: file.type,
+    });
 
-    if (uploadError) {
-      return NextResponse.json({ c: 500, m: uploadError.message, d: uploadError });
-    }
+  if (uploadError) return jsonError(uploadError.message);
 
-    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
-    
-    const { error: updateError } = await supabase
-      .from("users")
-      .update({ avatar_url: urlData.publicUrl })
-      .eq("id", user.d?.user?.id);
+  const { data: urlData } = supabase.storage
+    .from("avatars")
+    .getPublicUrl(filePath);
 
-    if (updateError) {
-      return NextResponse.json({ c: 500, m: updateError.message, d: updateError });
-    }
+  const { error: updateError } = await supabase
+    .from("users")
+    .update({ avatar_url: urlData.publicUrl })
+    .eq("id", user.d?.user?.id);
 
-    return NextResponse.json({ c: 200, m: "Avatar updated successfully", d: { avatarUrl: urlData.publicUrl } });
-  } catch (error) {
-    return NextResponse.json({ c: 500, m: "Internal Server Error", d: error });
-  }
-}
+  if (updateError) return jsonError(updateError.message);
+
+  return jsonSuccess(
+    { avatarUrl: urlData.publicUrl },
+    "Avatar Updated Successfully",
+  );
+});

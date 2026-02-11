@@ -1,5 +1,6 @@
 /** @jest-environment node */
 import { POST } from "@/app/api/signup/route";
+import { NextRequest } from "next/server";
 
 const mockSingle = jest.fn();
 const mockEq = jest.fn(() => ({ single: mockSingle }));
@@ -25,7 +26,7 @@ const mockFetch = jest.fn();
 global.fetch = mockFetch;
 
 function makeRequest(body: Record<string, unknown>) {
-  return new Request("http://localhost/api/signup", {
+  return new NextRequest("http://localhost/api/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -53,7 +54,7 @@ describe("POST /api/signup", () => {
         username: "user",
         password: "pass123",
         confirmPassword: "pass123",
-      })
+      }),
     );
     const data = await res.json();
     expect(data.c).toBe(400);
@@ -68,11 +69,11 @@ describe("POST /api/signup", () => {
         username: "user",
         password: "pass123",
         confirmPassword: "different",
-      })
+      }),
     );
     const data = await res.json();
     expect(data.c).toBe(400);
-    expect(data.m).toContain("do not match");
+    expect(data.m).toContain("Do Not Match");
   });
 
   it("Should return 400 if email already exists", async () => {
@@ -85,18 +86,21 @@ describe("POST /api/signup", () => {
         username: "user",
         password: "pass123",
         confirmPassword: "pass123",
-      })
+      }),
     );
     const data = await res.json();
     expect(data.c).toBe(400);
-    expect(data.m).toContain("already in use");
+    expect(data.m).toContain("Already In Use");
   });
 
   it("Should return 500 if insert fails", async () => {
     // Email check — not found
     mockSingle.mockResolvedValueOnce({ data: null, error: null });
     // Insert fails
-    mockSingle.mockResolvedValueOnce({ data: null, error: { message: "DB error" } });
+    mockSingle.mockResolvedValueOnce({
+      data: null,
+      error: { message: "DB error" },
+    });
 
     const res = await POST(
       makeRequest({
@@ -105,7 +109,7 @@ describe("POST /api/signup", () => {
         username: "user",
         password: "pass123",
         confirmPassword: "pass123",
-      })
+      }),
     );
     const data = await res.json();
     expect(data.c).toBe(500);
@@ -127,11 +131,13 @@ describe("POST /api/signup", () => {
         username: "user",
         password: "pass123",
         confirmPassword: "pass123",
-      })
+      }),
     );
     const data = await res.json();
     expect(data.c).toBe(200);
     expect(data.d.token).toBe("mocked-jwt-token");
-    expect(res.headers.get("set-cookie")).toContain("auth-token=mocked-jwt-token");
+    expect(res.headers.get("set-cookie")).toContain(
+      "auth-token=mocked-jwt-token",
+    );
   });
 });

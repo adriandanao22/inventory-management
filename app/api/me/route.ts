@@ -1,20 +1,24 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { verifyToken, signToken } from "@/src/lib/auth";
 import { createClient } from "@/src/lib/supabase/server";
+import {
+  wrapHandler,
+  jsonUnauthorized,
+  jsonBadRequest,
+  jsonSuccess,
+  jsonConflict,
+  jsonError,
+} from "@/src/lib/api";
 
-export async function GET() {
+export const GET = wrapHandler(async () => {
   const cookieStore = await cookies();
   const token = cookieStore.get("auth-token")?.value;
 
-  if (!token) {
-    return NextResponse.json({ c: 401, m: "Unauthorized", d: null });
-  }
+  if (!token) return jsonUnauthorized();
 
   const payload = verifyToken(token);
-  if (!payload) {
-    return NextResponse.json({ c: 401, m: "Unauthorized", d: null });
-  }
+  if (!payload) return jsonUnauthorized();
 
   const supabase = await createClient();
   const { data: user, error } = await supabase
@@ -23,33 +27,25 @@ export async function GET() {
     .eq("id", payload.userId)
     .single();
 
-  if (error || !user) {
-    return NextResponse.json({ c: 500, m: "Failed to fetch user data", d: error });
-  }
+  if (error || !user) return jsonBadRequest("User Not Found");
 
-  return NextResponse.json({ c: 200, m: "Success", d: { user } } );
-}
+  return jsonSuccess({ user: user }, "User Profile Fetched Successfully");
+});
 
 // PUT /api/me — Update profile (username, email)
-export async function PUT(req: NextRequest) {
+export const PUT = wrapHandler(async (req: NextRequest) => {
   const cookieStore = await cookies();
   const token = cookieStore.get("auth-token")?.value;
 
-  if (!token) {
-    return NextResponse.json({ c: 401, m: "Unauthorized", d: null });
-  }
+  if (!token) return jsonUnauthorized();
 
   const payload = verifyToken(token);
-  if (!payload) {
-    return NextResponse.json({ c: 401, m: "Unauthorized", d: null });
-  }
+  if (!payload) return jsonUnauthorized();
 
   const body = await req.json();
   const { username, email } = body.d;
 
-  if (!username && !email) {
-    return NextResponse.json({ c: 400, m: "Nothing to update", d: null });
-  }
+  if (!username && !email) return jsonBadRequest("Nothing to update");
 
   const supabase = await createClient();
 
@@ -62,9 +58,7 @@ export async function PUT(req: NextRequest) {
       .neq("id", payload.userId)
       .single();
 
-    if (existing) {
-      return NextResponse.json({ c: 409, m: "Username already taken", d: null });
-    }
+    if (existing) return jsonConflict("Username already taken");
   }
 
   // Check for duplicate email
@@ -76,9 +70,7 @@ export async function PUT(req: NextRequest) {
       .neq("id", payload.userId)
       .single();
 
-    if (existing) {
-      return NextResponse.json({ c: 409, m: "Email already taken", d: null });
-    }
+    if (existing) return jsonConflict("Email already taken");
   }
 
   const updates: Record<string, string> = {};
@@ -90,9 +82,7 @@ export async function PUT(req: NextRequest) {
     .update(updates)
     .eq("id", payload.userId);
 
-  if (error) {
-    return NextResponse.json({ c: 500, m: "Failed to update profile", d: null });
-  }
+  if (error) return jsonError("Failed to update profile");
 
   // Issue a new token with updated info
   const newToken = signToken({
@@ -101,7 +91,7 @@ export async function PUT(req: NextRequest) {
     username: username || payload.username,
   });
 
-  const response = NextResponse.json({ c: 200, m: "Profile updated", d: null });
+  const response = jsonSuccess("Profile Updated Successfully");
   response.cookies.set("auth-token", newToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -111,4 +101,4 @@ export async function PUT(req: NextRequest) {
   });
 
   return response;
-}
+});

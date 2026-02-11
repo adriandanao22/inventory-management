@@ -3,20 +3,24 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/src/lib/auth";
 import { createClient } from "@/src/lib/supabase/server";
 import { CreateProduct } from "@/src/types/products";
+import {
+  jsonBadRequest,
+  jsonConflict,
+  jsonCreated,
+  jsonError,
+  jsonUnauthorized,
+  wrapHandler,
+} from "@/src/lib/api";
 
 // GET /api/products — List all products for authenticated user
-export async function GET(req: NextRequest) {
+export const GET = wrapHandler(async (req: NextRequest) => {
   const cookieStore = await cookies();
   const token = cookieStore.get("auth-token")?.value;
 
-  if (!token) {
-    return NextResponse.json({ c: 401, m: "Unauthorized", d: null });
-  }
+  if (!token) return jsonUnauthorized();
 
   const payload = verifyToken(token);
-  if (!payload) {
-    return NextResponse.json({ c: 401, m: "Unauthorized", d: null });
-  }
+  if (!payload) return jsonUnauthorized();
 
   const supabase = await createClient();
 
@@ -32,47 +36,34 @@ export async function GET(req: NextRequest) {
     .eq("user_id", payload.userId)
     .order("created_at", { ascending: false });
 
-  if (category) {
-    query = query.eq("category", category);
-  }
+  if (category) query = query.eq("category", category);
 
-  if (status) {
-    query = query.eq("status", status);
-  }
+  if (status) query = query.eq("status", status);
 
-  if (search) {
-    query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`);
-  }
+  if (search) query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`);
 
   const { data, error } = await query;
 
-  if (error) {
-    return NextResponse.json({ c: 500, m: "Error fetching products", d: error.message });
-  }
+  if (error) return jsonError("Error Fetching Products");
 
   return NextResponse.json({ c: 200, m: "Success", d: data });
-}
+});
 
 // POST /api/products — Create a new product
-export async function POST(req: NextRequest) {
+export const POST = wrapHandler(async (req: NextRequest) => {
   const cookieStore = await cookies();
   const token = cookieStore.get("auth-token")?.value;
 
-  if (!token) {
-    return NextResponse.json({ c: 401, m: "Unauthorized", d: null });
-  }
+  if (!token) return jsonUnauthorized();
 
   const payload = verifyToken(token);
-  if (!payload) {
-    return NextResponse.json({ c: 401, m: "Unauthorized", d: null });
-  }
+  if (!payload) return jsonUnauthorized();
 
   const body = await req.json();
   const product: CreateProduct = body.d;
 
-  if (!product?.name || !product?.sku || !product?.price) {
-    return NextResponse.json({ c: 400, m: "Name, SKU, and price are required", d: null });
-  }
+  if (!product?.name || !product?.sku || !product?.price)
+    return jsonBadRequest("Name, SKU, and Price are required");
 
   const supabase = await createClient();
 
@@ -84,9 +75,7 @@ export async function POST(req: NextRequest) {
     .eq("user_id", payload.userId)
     .single();
 
-  if (existing) {
-    return NextResponse.json({ c: 409, m: "A product with this SKU already exists", d: null });
-  }
+  if (existing) return jsonConflict("A Product With This SKU Already Exists");
 
   const { data, error } = await supabase
     .from("products")
@@ -94,9 +83,7 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) {
-    return NextResponse.json({ c: 500, m: "Error creating product", d: error.message });
-  }
+  if (error) return jsonError("Error Creating Product");
 
-  return NextResponse.json({ c: 201, m: "Product created", d: data });
-}
+  return jsonCreated(data, "Product Created Successfully");
+});

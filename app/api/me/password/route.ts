@@ -1,33 +1,35 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/src/lib/auth";
 import { createClient } from "@/src/lib/supabase/server";
 import bcrypt from "bcryptjs";
+import {
+  jsonBadRequest,
+  jsonError,
+  jsonNotFound,
+  jsonSuccess,
+  jsonUnauthorized,
+  wrapHandler,
+} from "@/src/lib/api";
 
 // PUT /api/me/password — Change password
-export async function PUT(req: NextRequest) {
+export const PUT = wrapHandler(async (req: NextRequest) => {
   const cookieStore = await cookies();
   const token = cookieStore.get("auth-token")?.value;
 
-  if (!token) {
-    return NextResponse.json({ c: 401, m: "Unauthorized", d: null });
-  }
+  if (!token) return jsonUnauthorized();
 
   const payload = verifyToken(token);
-  if (!payload) {
-    return NextResponse.json({ c: 401, m: "Unauthorized", d: null });
-  }
+  if (!payload) return jsonUnauthorized();
 
   const body = await req.json();
   const { currentPassword, newPassword } = body.d;
 
-  if (!currentPassword || !newPassword) {
-    return NextResponse.json({ c: 400, m: "Current and new password are required", d: null });
-  }
+  if (!currentPassword || !newPassword)
+    return jsonBadRequest("Current and new password are required");
 
-  if (newPassword.length < 6) {
-    return NextResponse.json({ c: 400, m: "Password must be at least 6 characters", d: null });
-  }
+  if (newPassword.length < 6)
+    return jsonBadRequest("Password must be at least 6 characters");
 
   const supabase = await createClient();
 
@@ -38,14 +40,10 @@ export async function PUT(req: NextRequest) {
     .eq("id", payload.userId)
     .single();
 
-  if (error || !user) {
-    return NextResponse.json({ c: 404, m: "User not found", d: null });
-  }
+  if (error || !user) return jsonNotFound("User not found");
 
   const match = await bcrypt.compare(currentPassword, user.password);
-  if (!match) {
-    return NextResponse.json({ c: 401, m: "Current password is incorrect", d: null });
-  }
+  if (!match) return jsonUnauthorized("Current password is incorrect");
 
   // Hash and update
   const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -54,9 +52,7 @@ export async function PUT(req: NextRequest) {
     .update({ password: hashedPassword })
     .eq("id", payload.userId);
 
-  if (updateError) {
-    return NextResponse.json({ c: 500, m: "Failed to update password", d: null });
-  }
+  if (updateError) return jsonError("Error Updating Password");
 
-  return NextResponse.json({ c: 200, m: "Password updated", d: null });
-}
+  return jsonSuccess("Password Updated Successfully");
+});
