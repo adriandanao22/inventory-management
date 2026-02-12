@@ -92,7 +92,7 @@ export default function StockAdjustmentForm({
     "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1";
 
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-6">
       <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
         New Stock Adjustment
       </h2>
@@ -167,12 +167,12 @@ export default function StockAdjustmentForm({
             />
           </div>
         </div>
-        <div className="flex justify-end gap-3">
+        <div className="flex flex-col sm:flex-row justify-end gap-3">
           {onCancel && (
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 rounded border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="w-full sm:w-auto px-4 py-2 rounded border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               Cancel
             </button>
@@ -180,7 +180,7 @@ export default function StockAdjustmentForm({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-indigo-600 px-4 py-2 rounded text-white hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto bg-indigo-600 px-4 py-2 rounded text-white hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Submitting..." : "Submit Adjustment"}
           </button>

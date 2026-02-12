@@ -177,8 +177,8 @@ export default function ProductsPage() {
       <Response message={message} type={messageType} className="mb-4" />
 
       {showForm && (
-        <div className="fixed inset-0 z-50 h-screen mx-auto flex items-center justify-center backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg max-w-xl w-full p-4 relative">
+        <div className="fixed inset-0 z-50 overflow-auto backdrop-blur-sm flex items-start sm:items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg max-w-xl w-full p-4 relative max-h-[calc(100vh-6rem)] overflow-auto">
             <ProductForm
               onSuccess={() => {
                 setShowForm(false);
@@ -234,8 +234,8 @@ export default function ProductsPage() {
       </Card>
 
       {/* Pagination Info */}
-      <Card className="flex items-center justify-center p-3 space-x-5">
-        <div className="text-sm text-gray-600 dark:text-gray-300">
+      <Card className="flex flex-col sm:flex-row items-center sm:justify-between p-3 space-y-3 sm:space-y-0 sm:space-x-5">
+        <div className="text-sm text-gray-600 dark:text-gray-300 w-full sm:w-auto text-center sm:text-left">
           {total > 0 ? (
             <span>
               Showing{" "}
@@ -245,51 +245,52 @@ export default function ProductsPage() {
               of <span className="font-medium">{total}</span> results
             </span>
           ) : (
-            <span className="text-gray-500">No adjustments</span>
+            <span className="text-gray-500">No products found</span>
           )}
         </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
+          <div className="flex items-center gap-2 overflow-auto py-1">
+            <button
+              aria-label="Previous page"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="p-2 sm:p-1 cursor-pointer"
+            >
+              <FaArrowLeft />
+            </button>
 
-        <div className="flex items-center gap-2">
-          <button
-            aria-label="Previous page"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page <= 1}
-            className="cursor-pointer"
-          >
-            <FaArrowLeft />
-          </button>
+            {pageList.map((p, i) =>
+              p === "..." ? (
+                <span key={`e-${i}`} className="px-2 text-gray-500">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={p}
+                  aria-current={p === page ? "page" : undefined}
+                  onClick={() => setPage(Number(p))}
+                  className={`text-sm px-2 sm:px-3 py-1 rounded-md border ${
+                    p === page
+                      ? "bg-indigo-600 text-white border-indigo-600"
+                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  {p}
+                </button>
+              ),
+            )}
 
-          {pageList.map((p, i) =>
-            p === "..." ? (
-              <span key={`e-${i}`} className="px-2 text-gray-500">
-                …
-              </span>
-            ) : (
-              <button
-                key={p}
-                aria-current={p === page ? "page" : undefined}
-                onClick={() => setPage(Number(p))}
-                className={`px-3 py-1 rounded-md border ${
-                  p === page
-                    ? "bg-indigo-600 text-white border-indigo-600"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
-                }`}
-              >
-                {p}
-              </button>
-            ),
-          )}
+            <button
+              aria-label="Next page"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="p-2 sm:p-1 cursor-pointer"
+            >
+              <FaArrowRight />
+            </button>
+          </div>
 
-          <button
-            aria-label="Next page"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page >= totalPages}
-            className="cursor-pointer"
-          >
-            <FaArrowRight />
-          </button>
-
-          <div className="ml-3 flex items-center gap-2">
+          <div className="ml-0 sm:ml-3 flex items-center gap-2">
             <label className="mr-2 text-gray-700 dark:text-gray-200 font-medium">
               Rows:
             </label>
@@ -312,7 +313,7 @@ export default function ProductsPage() {
       </Card>
 
       {/* Product Table */}
-      <Card className="p-0 overflow-hidden">
+      <Card className="p-0 overflow-auto">
         <table className="w-full bg-white dark:bg-gray-900">
           <thead className="">
             <tr className="bg-gray-50 dark:bg-gray-900 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">

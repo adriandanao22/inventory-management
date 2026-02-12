@@ -99,7 +99,7 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* General Information */}
-      <Card className="p-6 space-y-4">
+      <Card className="p-4 sm:p-6 space-y-4">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
           General Information
         </h2>
@@ -188,7 +188,7 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
       </Card>
 
       {/* Stock Information */}
-      <Card className="p-6 space-y-4">
+      <Card className="p-4 sm:p-6 space-y-4">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
           Stock Information
         </h2>
@@ -228,7 +228,7 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
       </Card>
 
       {/* Supplier & Location */}
-      <Card className="p-6 space-y-4">
+      <Card className="p-4 sm:p-6 space-y-4">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
           Supplier & Location
         </h2>
@@ -271,19 +271,19 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
       )}
 
       {/* Actions */}
-      <div className="flex justify-end gap-3">
+      <div className="flex flex-col sm:flex-row justify-end gap-3">
         {onCancel ? (
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 rounded border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="w-full sm:w-auto px-4 py-2 rounded border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             Cancel
           </button>
         ) : (
           <Link
             href="/dashboard/products"
-            className="px-4 py-2 rounded border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="w-full sm:w-auto px-4 py-2 rounded border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             Cancel
           </Link>
@@ -291,7 +291,7 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="bg-indigo-600 px-4 py-2 rounded text-white hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto bg-indigo-600 px-4 py-2 rounded text-white hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Creating..." : "Create Product"}
         </button>
