@@ -27,6 +27,7 @@ A full-stack inventory management application built with Next.js, Supabase, and 
 - [Database Schema](#database-schema)
 - [Testing](#testing)
 - [Deployment](#deployment)
+- [Suggestions](#suggestions)
 
 ---
 
@@ -392,13 +393,13 @@ Update notification settings.
 
 List all products for the authenticated user.
 
-| Query Param | Type     | Description                               |
-| ----------- | -------- | ----------------------------------------- |
-| `category`  | `string` | Filter by category                        |
-| `status`    | `string` | Filter by status                          |
-| `search`    | `string` | Search by name or SKU (ilike)            |
-| `page`      | `number` | Page number (default `1`)                |
-| `limit`     | `number` | Page size / max results (default `20`)   |
+| Query Param | Type     | Description                            |
+| ----------- | -------- | -------------------------------------- |
+| `category`  | `string` | Filter by category                     |
+| `status`    | `string` | Filter by status                       |
+| `search`    | `string` | Search by name or SKU (ilike)          |
+| `page`      | `number` | Page number (default `1`)              |
+| `limit`     | `number` | Page size / max results (default `20`) |
 
 **Response `d`:** `{ items: Product[], total: number, page: number, pageSize: number }`
 
@@ -446,12 +447,12 @@ Delete a product.
 
 List stock adjustments with product and user details.
 
-| Query Param  | Type     | Description                               |
-| ------------ | -------- | ----------------------------------------- |
-| `type`       | `string` | `"incoming"` or `"outgoing"`             |
-| `product_id` | `string` | Filter by product                         |
-| `page`       | `number` | Page number (default `1`)                 |
-| `limit`      | `number` | Page size / max results (default `20`)    |
+| Query Param  | Type     | Description                            |
+| ------------ | -------- | -------------------------------------- |
+| `type`       | `string` | `"incoming"` or `"outgoing"`           |
+| `product_id` | `string` | Filter by product                      |
+| `page`       | `number` | Page number (default `1`)              |
+| `limit`      | `number` | Page size / max results (default `20`) |
 
 **Response `d`:** `{ items: StockAdjustmentWithDetails[], total: number, page: number, pageSize: number }`
 
@@ -577,3 +578,9 @@ For other platforms, build and start the production server:
 npm run build
 npm start
 ```
+
+---
+
+## Suggestions
+
+While the assessment is clearly constructed for each applicant. I think it would be a fun challenge to include some constraints when creating the systems. This would invite creativity and critical thinking, and it would be a great way for the applicant to learn something new.
