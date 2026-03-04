@@ -2,6 +2,16 @@
 import { POST } from "@/app/api/stock-adjustments/route";
 import { NextRequest } from "next/server";
 
+// Provide a typed global.fetch for tests to avoid `any` casts
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace NodeJS {
+    interface Global {
+      fetch: jest.Mock<Promise<Response>, [RequestInfo, RequestInit?]>;
+    }
+  }
+}
+
 // --- Build a fully chainable Supabase mock per table ---
 function createChainMock() {
   const chain: Record<string, jest.Mock> = {};
@@ -82,7 +92,15 @@ describe("POST /api/stock-adjustments", () => {
     jest.clearAllMocks();
     // default fetch mock for SMS endpoint
     // resolve with ok:true to simulate successful internal API call
-    (global as any).fetch = jest.fn(() => Promise.resolve({ ok: true }));
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      json: async () => ({}),
+      text: async () => "",
+      headers: new Headers(),
+    } as unknown as Response;
+
+    global.fetch = jest.fn(() => Promise.resolve(mockResponse));
     productSelectChain = createChainMock();
     productUpdateChain = createChainMock();
     adjustmentChain = createChainMock();
@@ -223,8 +241,8 @@ describe("POST /api/stock-adjustments", () => {
     const data = await res.json();
     expect(data.c).toBe(201);
     // verify our internal SMS route was called with correct payload
-    expect((global as any).fetch).toHaveBeenCalled();
-    const lastCall = (global as any).fetch.mock.calls[0];
+    expect(global.fetch).toHaveBeenCalled();
+    const lastCall = (global.fetch as jest.Mock).mock.calls[0];
     expect(lastCall[0]).toBe("/api/sms");
     expect(lastCall[1]?.method).toBe("POST");
     expect(lastCall[1]?.headers).toEqual({
@@ -255,6 +273,6 @@ describe("POST /api/stock-adjustments", () => {
       makeRequest({ d: { product_id: "p-1", type: "outgoing", units: 1 } }),
     );
 
-    expect((global as any).fetch).not.toHaveBeenCalled();
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 });

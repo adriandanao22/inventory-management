@@ -2,7 +2,6 @@ import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { createClient } from "@/src/lib/supabase/server";
 import { verifyToken } from "@/src/lib/auth";
-import { sendLowStockEmail } from "@/src/lib/resend";
 import {
   wrapHandler,
   jsonSuccess,
