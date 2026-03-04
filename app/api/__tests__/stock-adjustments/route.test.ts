@@ -5,7 +5,16 @@ import { NextRequest } from "next/server";
 // --- Build a fully chainable Supabase mock per table ---
 function createChainMock() {
   const chain: Record<string, jest.Mock> = {};
-  const methods = ["select", "insert", "update", "delete", "eq", "neq", "order", "limit"];
+  const methods = [
+    "select",
+    "insert",
+    "update",
+    "delete",
+    "eq",
+    "neq",
+    "order",
+    "limit",
+  ];
   methods.forEach((m) => {
     chain[m] = jest.fn(() => chain);
   });
@@ -53,16 +62,12 @@ jest.mock("@/src/lib/auth", () => ({
       : null,
 }));
 
-import { sendLowStockEmail } from "@/src/lib/resend";
-
-jest.mock("@/src/lib/resend", () => ({
-  sendLowStockEmail: jest.fn(() => Promise.resolve()),
-}));
-
-const mockSendLowStockEmail = sendLowStockEmail as jest.Mock;
+// We'll mock the outbound SMS API via global.fetch in tests
 
 function makeRequest(body: Record<string, unknown>, withAuth = true) {
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   if (withAuth) headers.Cookie = "auth-token=valid-token";
 
   return new NextRequest("http://localhost/api/stock-adjustments", {
@@ -75,6 +80,9 @@ function makeRequest(body: Record<string, unknown>, withAuth = true) {
 describe("POST /api/stock-adjustments", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // default fetch mock for SMS endpoint
+    // resolve with ok:true to simulate successful internal API call
+    (global as any).fetch = jest.fn(() => Promise.resolve({ ok: true }));
     productSelectChain = createChainMock();
     productUpdateChain = createChainMock();
     adjustmentChain = createChainMock();
@@ -99,7 +107,7 @@ describe("POST /api/stock-adjustments", () => {
     });
 
     const res = await POST(
-      makeRequest({ d: { product_id: "bad", type: "incoming", units: 5 } })
+      makeRequest({ d: { product_id: "bad", type: "incoming", units: 5 } }),
     );
     const data = await res.json();
     expect(data.c).toBe(404);
@@ -112,7 +120,7 @@ describe("POST /api/stock-adjustments", () => {
     });
 
     const res = await POST(
-      makeRequest({ d: { product_id: "p-1", type: "outgoing", units: 10 } })
+      makeRequest({ d: { product_id: "p-1", type: "outgoing", units: 10 } }),
     );
     const data = await res.json();
     expect(data.c).toBe(400);
@@ -135,7 +143,7 @@ describe("POST /api/stock-adjustments", () => {
     });
 
     const res = await POST(
-      makeRequest({ d: { product_id: "p-1", type: "incoming", units: 5 } })
+      makeRequest({ d: { product_id: "p-1", type: "incoming", units: 5 } }),
     );
     const data = await res.json();
     expect(data.c).toBe(201);
@@ -158,13 +166,13 @@ describe("POST /api/stock-adjustments", () => {
     });
 
     const res = await POST(
-      makeRequest({ d: { product_id: "p-1", type: "outgoing", units: 5 } })
+      makeRequest({ d: { product_id: "p-1", type: "outgoing", units: 5 } }),
     );
     const data = await res.json();
     expect(data.c).toBe(201);
 
     expect(productUpdateChain.update).toHaveBeenCalledWith(
-      expect.objectContaining({ stock: 3, status: "Low Stock" })
+      expect.objectContaining({ stock: 3, status: "Low Stock" }),
     );
   });
 
@@ -184,18 +192,17 @@ describe("POST /api/stock-adjustments", () => {
     });
 
     const res = await POST(
-      makeRequest({ d: { product_id: "p-1", type: "outgoing", units: 5 } })
+      makeRequest({ d: { product_id: "p-1", type: "outgoing", units: 5 } }),
     );
     const data = await res.json();
     expect(data.c).toBe(201);
 
     expect(productUpdateChain.update).toHaveBeenCalledWith(
-      expect.objectContaining({ stock: 0, status: "Out of Stock" })
+      expect.objectContaining({ stock: 0, status: "Out of Stock" }),
     );
   });
 
   it("Should send low stock email on threshold transition", async () => {
-
     productSelectChain.single.mockResolvedValueOnce({
       data: { id: "p-1", stock: 10, min_stock: 5, name: "Widget" },
       error: null,
@@ -211,15 +218,25 @@ describe("POST /api/stock-adjustments", () => {
     });
 
     const res = await POST(
-      makeRequest({ d: { product_id: "p-1", type: "outgoing", units: 6 } })
+      makeRequest({ d: { product_id: "p-1", type: "outgoing", units: 6 } }),
     );
     const data = await res.json();
     expect(data.c).toBe(201);
-    expect(mockSendLowStockEmail).toHaveBeenCalledWith("a@b.com", "Widget", 4, 5);
+    // verify our internal SMS route was called with correct payload
+    expect((global as any).fetch).toHaveBeenCalled();
+    const lastCall = (global as any).fetch.mock.calls[0];
+    expect(lastCall[0]).toBe("/api/sms");
+    expect(lastCall[1]?.method).toBe("POST");
+    expect(lastCall[1]?.headers).toEqual({
+      "Content-Type": "application/json",
+    });
+    expect(JSON.parse(lastCall[1]?.body)).toEqual({
+      to: "a@b.com",
+      message: `Product Widget is low on stock. Current stock: 4. Please restock.`,
+    });
   });
 
   it("Should NOT send email if stock was already below threshold", async () => {
-
     productSelectChain.single.mockResolvedValueOnce({
       data: { id: "p-1", stock: 3, min_stock: 5, name: "Widget" },
       error: null,
@@ -235,9 +252,9 @@ describe("POST /api/stock-adjustments", () => {
     });
 
     await POST(
-      makeRequest({ d: { product_id: "p-1", type: "outgoing", units: 1 } })
+      makeRequest({ d: { product_id: "p-1", type: "outgoing", units: 1 } }),
     );
 
-    expect(mockSendLowStockEmail).not.toHaveBeenCalled();
+    expect((global as any).fetch).not.toHaveBeenCalled();
   });
 });
