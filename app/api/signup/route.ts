@@ -38,6 +38,13 @@ export const POST = wrapHandler(async (req: Request) => {
     .single();
   if (existing) return jsonBadRequest("Email Already In Use");
 
+  const { data: existingUsername } = await supabase
+    .from("users")
+    .select("id")
+    .eq("username", username)
+    .single();
+  if (existingUsername) return jsonBadRequest("Username Already In Use");
+
   const hashedPassword = await bcrypt.hash(password, 12);
   const { data: user, error } = await supabase
     .from("users")
@@ -45,7 +52,7 @@ export const POST = wrapHandler(async (req: Request) => {
     .select("id, email, username")
     .single();
 
-  if (error) return jsonError("Error Creating User");
+  if (!user || error) return jsonError("Error Creating User");
 
   const jwt = signToken({
     userId: user.id,

@@ -30,10 +30,9 @@ export const GET = wrapHandler(async (req: NextRequest) => {
 
   let query = supabase
     .from("stock_adjustments")
-    .select(
-      "*, products:product_id(name, sku), users:user_id(username)",
-      { count: "exact" },
-    )
+    .select("*, products:product_id(name, sku), users:user_id(username)", {
+      count: "exact",
+    })
     .eq("user_id", payload.userId)
     .order("created_at", { ascending: false });
 
@@ -146,12 +145,16 @@ export const POST = wrapHandler(async (req: NextRequest) => {
       newStock <= userData.low_stock_limit &&
       product.stock > userData.low_stock_limit // only notify on the transition
     ) {
-      await sendLowStockEmail(
-        userData.email,
-        product.name,
-        newStock,
-        userData.low_stock_limit,
-      );
+      await fetch("/api/sms", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: userData.email,
+          message: `Product ${product.name} is low on stock. Current stock: ${newStock}. Please restock.`,
+        }),
+      });
     }
   } catch (emailError) {
     // Don't fail the request if email fails

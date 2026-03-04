@@ -16,19 +16,34 @@ export const POST = wrapHandler(async (req: NextRequest) => {
   const { username, password } = request.d;
 
   if (!username || !password) {
-    return jsonError("Username and password are required", 400);
+    return jsonError("Username or email and password are required", 400);
   }
 
-  const { data: user, error } = await supabase
-    .from("users")
-    .select("id, email, username, password")
-    .eq("username", username)
-    .single();
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username);
 
-  if (error || !user) return jsonUnauthorized();
+  let userQuery;
+
+  if (isEmail) {
+    userQuery = supabase
+      .from("users")
+      .select("id, email, username, password")
+      .eq("email", username);
+  } else {
+    userQuery = supabase
+      .from("users")
+      .select("id, email, username, password")
+      .eq("username", username);
+  }
+
+  const { data: user, error } = await userQuery.single();
+
+  if (error || !user) {
+    return jsonUnauthorized("Invalid username/email or password");
+  }
 
   const passwordMatch = await bcrypt.compare(password, user.password);
-  if (!passwordMatch) return jsonUnauthorized("Invalid username or password");
+  if (!passwordMatch)
+    return jsonUnauthorized("Invalid username/email or password");
 
   const jwt = signToken({
     userId: user.id,

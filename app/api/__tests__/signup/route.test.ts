@@ -93,8 +93,28 @@ describe("POST /api/signup", () => {
     expect(data.m).toContain("Already In Use");
   });
 
+  it("Should return 400 if username already exists", async () => {
+    mockSingle.mockResolvedValueOnce({ data: null, error: null });
+    mockSingle.mockResolvedValueOnce({ data: { id: "existing" }, error: null });
+
+    const res = await POST(
+      makeRequest({
+        token: "valid",
+        email: "a@b.com",
+        username: "taken",
+        password: "pass123",
+        confirmPassword: "pass123",
+      }),
+    );
+    const data = await res.json();
+    expect(data.c).toBe(400);
+    expect(data.m).toContain("Already In Use");
+  });
+
   it("Should return 500 if insert fails", async () => {
     // Email check — not found
+    mockSingle.mockResolvedValueOnce({ data: null, error: null });
+    // Username check — not found
     mockSingle.mockResolvedValueOnce({ data: null, error: null });
     // Insert fails
     mockSingle.mockResolvedValueOnce({
@@ -118,9 +138,11 @@ describe("POST /api/signup", () => {
   it("Should return 200 and set cookie on success", async () => {
     // Email check — not found
     mockSingle.mockResolvedValueOnce({ data: null, error: null });
+    // Username check — not found
+    mockSingle.mockResolvedValueOnce({ data: null, error: null });
     // Insert success
     mockSingle.mockResolvedValueOnce({
-      data: { id: "new-id", email: "new@b.com", username: "user" },
+      data: { id: "new-id", email: "new@b.com", username: "newuser" },
       error: null,
     });
 
@@ -128,7 +150,7 @@ describe("POST /api/signup", () => {
       makeRequest({
         token: "valid",
         email: "new@b.com",
-        username: "user",
+        username: "newuser",
         password: "pass123",
         confirmPassword: "pass123",
       }),
