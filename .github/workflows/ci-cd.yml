@@ -16,16 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
+          cache: "pnpm"
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
-      - run: npm run lint
+      - run: pnpm run lint
 
-      - run: npm run test:ci
+      - run: pnpm run test:ci
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${{ secrets.NEXT_PUBLIC_RECAPTCHA_SITE_KEY }}
