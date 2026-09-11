@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { verifyToken } from "./src/lib/auth";
 
 const protectedRoutes = ["/dashboard"];
-const authRoutes = ["/login", "/signup"];
+const authRoutes = ["/login", "/signup", "/forgot-password"];
 
 export async function proxy(req: NextRequest) {
   const token = req.cookies.get("auth-token")?.value;
@@ -35,5 +35,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard", "/login", "/signup"],
+  matcher: ["/dashboard", "/login", "/signup", "/forgot-password"],
 };
